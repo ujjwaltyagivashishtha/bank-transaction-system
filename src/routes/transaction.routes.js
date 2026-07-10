@@ -5,7 +5,10 @@ const transactionController = require('../controllers/transaction.controller');
 
 const transactionRouter = Router();
 
-
+/**
+ * -POST /api/transactions
+ * -Create a new transaction
+ */
 
 transactionRouter.post("/",authMiddleware.authMiddleware,transactionController.createTransaction);
 
