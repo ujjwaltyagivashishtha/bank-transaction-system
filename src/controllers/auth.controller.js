@@ -34,6 +34,7 @@ async function userRegister(req, res) {
       name,
       email,
       password,
+      systemUser: false
     });
 
     await user.save();
