@@ -1,21 +1,33 @@
-const express = require("express");
-const authMiddleware = require('../middleware/auth.middleware');
-const accountController = require('../controllers/account.controller');
+const express = require("express")
+const authMiddleware = require("../middleware/auth.middleware")
+const accountController = require("../controllers/account.controller")
 
 
+const router = express.Router()
 
-
-
-const router = express.Router();
 
 
 /**
  * - POST /api/accounts/
- * - Create a account
- * - Protected route
+ * - Create a new account
+ * - Protected Route
  */
+router.post("/", authMiddleware.authMiddleware, accountController.createAccountController)
 
-router.post('/',authMiddleware.authMiddleware,accountController.createAccountController)
+
+/**
+ * - GET /api/accounts/
+ * - Get all accounts of the logged-in user
+ * - Protected Route
+ */
+router.get("/", authMiddleware.authMiddleware, accountController.getUserAccountsController)
 
 
-module.exports = router;
+/**
+ * - GET /api/accounts/balance/:accountId
+ */
+router.get("/balance/:accountId", authMiddleware.authMiddleware, accountController.getAccountBalanceController)
+
+
+
+module.exports = router
