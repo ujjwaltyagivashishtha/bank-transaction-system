@@ -11,14 +11,16 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// Verify the connection configuration
-transporter.verify((error, success) => {
-    if (error) {
-        console.error('Error connecting to email server:', error);
-    } else {
-        console.log('Email server is ready to send messages');
-    }
-});
+// Verify the connection configuration if credentials are configured
+if (process.env.EMAIL_USER && process.env.CLIENT_ID) {
+    transporter.verify((error, success) => {
+        if (error) {
+            console.warn('Email service notice: Unable to connect to OAuth email server:', error.message);
+        } else {
+            console.log('Email server is ready to send messages');
+        }
+    });
+}
 
 
 // Function to send email
@@ -41,25 +43,25 @@ const sendEmail = async (to, subject, text, html) => {
 
 
 async function sendRegistrationEmail(userEmail, name) {
-    const subject = 'Welcome to Backend Ledger!';
-    const text = `Hello ${name},\n\nThank you for registering at Backend Ledger. We're excited to have you on board!\n\nBest regards,\nThe Backend Ledger Team`;
-    const html = `<p>Hello ${name},</p><p>Thank you for registering at Backend Ledger. We're excited to have you on board!</p><p>Best regards,<br>The Backend Ledger Team</p>`;
+    const subject = 'Welcome to TRANSACT Ledger Bank!';
+    const text = `Hello ${name},\n\nThank you for registering at TRANSACT Ledger Bank. Your digital banking profile has been initialized successfully!\n\nBest regards,\nThe TRANSACT Team`;
+    const html = `<p>Hello ${name},</p><p>Thank you for registering at TRANSACT Ledger Bank. Your digital banking profile has been initialized successfully!</p><p>Best regards,<br>The TRANSACT Team</p>`;
 
     await sendEmail(userEmail, subject, text, html);
 }
 
 async function sendTransactionEmail(userEmail, name, amount, toAccount) {
     const subject = 'Transaction Successful!';
-    const text = `Hello ${name},\n\nYour transaction of $${amount} to account ${toAccount} was successful.\n\nBest regards,\nThe Backend Ledger Team`;
-    const html = `<p>Hello ${name},</p><p>Your transaction of $${amount} to account ${toAccount} was successful.</p><p>Best regards,<br>The Backend Ledger Team</p>`;
+    const text = `Hello ${name},\n\nYour transfer of ₹${amount} to account ${toAccount} was executed and settled successfully on the ledger.\n\nBest regards,\nThe TRANSACT Team`;
+    const html = `<p>Hello ${name},</p><p>Your transfer of <strong>₹${amount}</strong> to account <code>${toAccount}</code> was executed and settled successfully on the ledger.</p><p>Best regards,<br>The TRANSACT Team</p>`;
 
     await sendEmail(userEmail, subject, text, html);
 }
 
 async function sendTransactionFailureEmail(userEmail, name, amount, toAccount) {
-    const subject = 'Transaction Failed';
-    const text = `Hello ${name},\n\nWe regret to inform you that your transaction of $${amount} to account ${toAccount} has failed. Please try again later.\n\nBest regards,\nThe Backend Ledger Team`;
-    const html = `<p>Hello ${name},</p><p>We regret to inform you that your transaction of $${amount} to account ${toAccount} has failed. Please try again later.</p><p>Best regards,<br>The Backend Ledger Team</p>`;
+    const subject = 'Transaction Processing Notice';
+    const text = `Hello ${name},\n\nWe regret to inform you that your transfer attempt of ₹${amount} to account ${toAccount} could not be settled. Please check your available balance and retry.\n\nBest regards,\nThe TRANSACT Team`;
+    const html = `<p>Hello ${name},</p><p>We regret to inform you that your transfer attempt of <strong>₹${amount}</strong> to account <code>${toAccount}</code> could not be settled. Please check your available balance and retry.</p><p>Best regards,<br>The TRANSACT Team</p>`;
 
     await sendEmail(userEmail, subject, text, html);
 }

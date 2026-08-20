@@ -12,6 +12,13 @@ const ledgerSchema = new mongoose.Schema({
     amount: {
         type: Number,
         required: [ true, "Amount is required for creating a ledger entry" ],
+        min: [ 0.01, "Ledger entry amount must be greater than zero" ],
+        validate: {
+            validator: function(val) {
+                return Number.isFinite(val) && val > 0;
+            },
+            message: "Amount must be a valid finite positive number"
+        },
         immutable: true
     },
     transaction: {

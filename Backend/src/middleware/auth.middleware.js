@@ -5,77 +5,67 @@ const tokenBlackListModel = require("../models/blackList.model")
 
 
 async function authMiddleware(req, res, next) {
-
-    const token = req.cookies.token || req.headers.authorization?.split(" ")[ 1 ]
+    const token = req.cookies?.token || req.headers.authorization?.split(" ")[ 1 ];
 
     if (!token) {
         return res.status(401).json({
             message: "Unauthorized access, token is missing"
-        })
-    }
-
-    const isBlacklisted = await tokenBlackListModel.findOne({ token })
-
-    if (isBlacklisted) {
-        return res.status(401).json({
-            message: "Unauthorized access, token is invalid"
-        })
+        });
     }
 
     try {
+        const isBlacklisted = await tokenBlackListModel.findOne({ token });
+        if (isBlacklisted) {
+            return res.status(401).json({
+                message: "Unauthorized access, token is invalid"
+            });
+        }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await userModel.findById(decoded.userId).select("+systemUser");
 
-        const user = await userModel.findById(decoded.userId)
+        if (!user) {
+            return res.status(401).json({
+                message: "Unauthorized access, user does not exist"
+            });
+        }
 
-        req.user = user
+        // Attach only minimal sanitized user data
+        req.user = {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            systemUser: Boolean(user.systemUser)
+        };
 
-        return next()
-
+        return next();
     } catch (err) {
         return res.status(401).json({
             message: "Unauthorized access, token is invalid"
-        })
+        });
     }
 }
+
 async function authSystemUserMiddleware(req, res, next) {
-
-    const token = req.cookies.token || req.headers.authorization?.split(" ")[ 1 ]
-
-    if (!token) {
-        return res.status(401).json({
-            message: "Unauthorized access, token is missing"
-        })
+    // Chain with authMiddleware if req.user is not yet populated
+    if (!req.user) {
+        return authMiddleware(req, res, () => {
+            if (!req.user?.systemUser) {
+                return res.status(403).json({
+                    message: "Forbidden access, not a system user"
+                });
+            }
+            return next();
+        });
     }
 
-    const isBlacklisted = await tokenBlackListModel.findOne({ token })
-
-    if (isBlacklisted) {
-        return res.status(401).json({
-            message: "Unauthorized access, token is invalid"
-        })
+    if (!req.user.systemUser) {
+        return res.status(403).json({
+            message: "Forbidden access, not a system user"
+        });
     }
 
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
-
-        const user = await userModel.findById(decoded.userId).select("+systemUser")
-        if (!user.systemUser) {
-            return res.status(403).json({
-                message: "Forbidden access, not a system user"
-            })
-        }
-
-        req.user = user
-
-        return next()
-    }
-    catch (err) {
-        return res.status(401).json({
-            message: "Unauthorized access, token is invalid"
-        })
-    }
-
+    return next();
 }
 
 module.exports = {
