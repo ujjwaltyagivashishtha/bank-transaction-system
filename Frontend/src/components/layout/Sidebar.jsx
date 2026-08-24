@@ -10,30 +10,35 @@ import {
   PlusCircle,
   LogOut,
   Sparkles,
-  Layers,
-  FileText,
   CreditCard,
+  Settings,
+  Landmark,
+  TrendingUp,
+  Shield,
+  Bell,
+  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useAccounts } from '../../context/AccountContext';
 import { formatAccountId } from '../../utils/formatAccountId';
 import { formatCurrency } from '../../utils/formatCurrency';
 
+const NAV_ITEMS = [
+  { to: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard',       desc: 'Overview & metrics' },
+  { to: '/accounts',   icon: Wallet,           label: 'My Accounts',    desc: 'Manage accounts'    },
+  { to: '/transfer',   icon: ArrowRightLeft,   label: 'Transfer Funds', desc: 'Send money'         },
+  { to: '/activity',   icon: History,          label: 'Activity Log',   desc: 'Transaction history'},
+];
+
 export default function Sidebar({ onOpenCreateAccount }) {
   const { user, logout, isSystemUser } = useAuth();
-  const { accounts, statusCounts, balances } = useAccounts();
+  const { accounts, statusCounts, balances, totalBalance } = useAccounts();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery]   = useState('');
   const navigate = useNavigate();
 
-  // Get user initials
   const initials = user?.name
-    ? user.name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .substring(0, 2)
+    ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().substring(0, 2)
     : 'U';
 
   const handleLogout = async () => {
@@ -45,245 +50,165 @@ export default function Sidebar({ onOpenCreateAccount }) {
     acc._id.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const allNavItems = [
+    ...NAV_ITEMS,
+    ...(isSystemUser ? [{ to: '/system-funding', icon: Sparkles, label: 'System Funding', desc: 'Inject liquidity', highlight: true }] : []),
+  ];
+
   return (
-    <aside className="sidebar-panel" aria-label="Main Sidebar Navigation">
-      {/* 1. Mac-Style Window Dots */}
-      <div className="sidebar-mac-dots">
-        <span className="mac-dot red" />
-        <span className="mac-dot yellow" />
-        <span className="mac-dot green" />
-      </div>
+    <aside className="sidebar-panel" aria-label="Main Navigation">
 
-      {/* 2. User Capsule */}
-      <div style={{ position: 'relative' }}>
-        <div
-          className="sidebar-user-card"
-          onClick={() => setUserMenuOpen((prev) => !prev)}
-          role="button"
-          tabIndex={0}
-          aria-expanded={userMenuOpen}
-        >
-          <div className="user-card-left">
-            <div className="user-avatar">{initials}</div>
-            <div className="user-details">
-              <div className="user-name-row">
-                <span className="user-name">{user?.name || 'Bank User'}</span>
-              </div>
-              <span className="user-email">{user?.email || 'user@example.com'}</span>
-            </div>
-          </div>
-          <ChevronDown
-            size={16}
-            color="var(--text-tertiary)"
-            style={{
-              transform: userMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-              transition: 'transform 0.2s ease',
-            }}
-          />
+      {/* ── Brand Header ── */}
+      <div className="sidebar-brand">
+        <div className="sidebar-brand-icon">
+          <Landmark size={18} />
         </div>
-
-        {/* Dropdown Menu */}
-        {userMenuOpen && (
-          <div
-            style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              right: 0,
-              marginTop: '6px',
-              backgroundColor: '#FFFFFF',
-              border: '1px solid var(--border-medium)',
-              borderRadius: 'var(--radius-md)',
-              padding: '6px',
-              boxShadow: 'var(--shadow-lg)',
-              zIndex: 100,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '4px',
-            }}
-          >
-            <button
-              className="btn btn-secondary btn-sm"
-              style={{ justifyContent: 'flex-start', width: '100%' }}
-              onClick={() => {
-                setUserMenuOpen(false);
-                navigate('/settings');
-              }}
-            >
-              Account Settings
-            </button>
-            <button
-              className="btn btn-sm"
-              style={{
-                justifyContent: 'flex-start',
-                width: '100%',
-                color: 'var(--accent-red)',
-                backgroundColor: 'var(--accent-red-bg)',
-              }}
-              onClick={handleLogout}
-            >
-              <LogOut size={14} />
-              Sign Out
-            </button>
-          </div>
-        )}
+        <div className="sidebar-brand-text">
+          <span className="sidebar-brand-name">TRANSACT</span>
+          <span className="sidebar-brand-sub">Banking System</span>
+        </div>
+        <div className="sidebar-brand-badge">
+          <span>LIVE</span>
+        </div>
       </div>
 
-      {/* 3. Navigation Section */}
-      <div className="sidebar-section">
-        <span className="section-label">Banking Operations</span>
+      {/* ── User Profile Card ── */}
+      <div className="sidebar-profile" onClick={() => setUserMenuOpen(p => !p)} role="button" tabIndex={0}
+        onKeyDown={(e) => e.key === 'Enter' && setUserMenuOpen(p => !p)}>
+        <div className="sidebar-profile-avatar">{initials}</div>
+        <div className="sidebar-profile-info">
+          <span className="sidebar-profile-name">{user?.name || 'Bank User'}</span>
+          <span className="sidebar-profile-email">{user?.email || 'user@example.com'}</span>
+        </div>
+        <ChevronDown
+          size={14}
+          className="sidebar-profile-chevron"
+          style={{ transform: userMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+        />
+      </div>
+
+      {/* User Dropdown */}
+      {userMenuOpen && (
+        <div className="sidebar-dropdown">
+          <button
+            className="sidebar-dropdown-item"
+            onClick={() => { setUserMenuOpen(false); navigate('/settings'); }}
+          >
+            <Settings size={14} />
+            <span>Account Settings</span>
+          </button>
+          <div className="sidebar-dropdown-divider" />
+          <button
+            className="sidebar-dropdown-item danger"
+            onClick={handleLogout}
+          >
+            <LogOut size={14} />
+            <span>Sign Out</span>
+          </button>
+        </div>
+      )}
+
+      {/* ── Balance Snapshot ── */}
+      <div className="sidebar-balance-card">
+        <div className="sidebar-balance-label">
+          <TrendingUp size={12} />
+          Total Portfolio
+        </div>
+        <div className="sidebar-balance-value">{formatCurrency(totalBalance)}</div>
+        <div className="sidebar-balance-meta">
+          <span className="sidebar-balance-chip active">{statusCounts.active} active</span>
+          {statusCounts.frozen > 0 && <span className="sidebar-balance-chip frozen">{statusCounts.frozen} frozen</span>}
+          {statusCounts.closed > 0 && <span className="sidebar-balance-chip closed">{statusCounts.closed} closed</span>}
+        </div>
+      </div>
+
+      {/* ── Navigation ── */}
+      <nav className="sidebar-nav" aria-label="App Navigation">
+        <span className="sidebar-nav-label">Navigation</span>
         <ul className="sidebar-nav-list">
-          <li>
-            <NavLink
-              to="/dashboard"
-              className={({ isActive }) => `sidebar-nav-link ${isActive ? 'active' : ''}`}
-            >
-              <div className="nav-link-content">
-                <LayoutDashboard size={17} />
-                <span>Dashboard</span>
-              </div>
-              <span className="nav-badge">{statusCounts.active}</span>
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/accounts"
-              className={({ isActive }) => `sidebar-nav-link ${isActive ? 'active' : ''}`}
-            >
-              <div className="nav-link-content">
-                <Wallet size={17} />
-                <span>My Accounts</span>
-              </div>
-              <span className="nav-badge">{accounts.length}</span>
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/transfer"
-              className={({ isActive }) => `sidebar-nav-link ${isActive ? 'active' : ''}`}
-            >
-              <div className="nav-link-content">
-                <ArrowRightLeft size={17} />
-                <span>Transfer Money</span>
-              </div>
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/activity"
-              className={({ isActive }) => `sidebar-nav-link ${isActive ? 'active' : ''}`}
-            >
-              <div className="nav-link-content">
-                <History size={17} />
-                <span>Transfer Activity</span>
-              </div>
-            </NavLink>
-          </li>
-          {isSystemUser && (
-            <li>
+          {allNavItems.map(({ to, icon: Icon, label, desc, highlight }) => (
+            <li key={to}>
               <NavLink
-                to="/system-funding"
-                className={({ isActive }) => `sidebar-nav-link ${isActive ? 'active' : ''}`}
+                to={to}
+                className={({ isActive }) => `sidebar-nav-link ${isActive ? 'active' : ''} ${highlight ? 'highlight' : ''}`}
               >
-                <div className="nav-link-content">
-                  <Sparkles size={17} color="#F59E0B" />
-                  <span>System Funding</span>
+                <div className="sidebar-nav-icon">
+                  <Icon size={16} />
                 </div>
+                <div className="sidebar-nav-info">
+                  <span className="sidebar-nav-name">{label}</span>
+                  <span className="sidebar-nav-desc">{desc}</span>
+                </div>
+                <ChevronRight size={13} className="sidebar-nav-arrow" />
               </NavLink>
             </li>
-          )}
+          ))}
         </ul>
-      </div>
+      </nav>
 
-      {/* 4. Account Status Section */}
-      <div className="sidebar-section">
-        <span className="section-label">Account Status</span>
-        <div className="status-pill-list">
-          <div className="status-pill-row">
-            <div className="status-pill-indicator">
-              <span className="status-dot active" />
-              <span>Active Accounts</span>
-            </div>
-            <span className="status-count">{statusCounts.active}</span>
-          </div>
-          <div className="status-pill-row">
-            <div className="status-pill-indicator">
-              <span className="status-dot frozen" />
-              <span>Frozen Accounts</span>
-            </div>
-            <span className="status-count">{statusCounts.frozen}</span>
-          </div>
-          <div className="status-pill-row">
-            <div className="status-pill-indicator">
-              <span className="status-dot closed" />
-              <span>Closed Accounts</span>
-            </div>
-            <span className="status-count">{statusCounts.closed}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 5. Fast Account Directory / Search (Matching lower documents tree in reference) */}
-      <div className="sidebar-section" style={{ marginTop: 'auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span className="section-label">Your Accounts</span>
-          {onOpenCreateAccount && (
-            <button
-              onClick={onOpenCreateAccount}
-              style={{ color: 'var(--text-tertiary)', padding: '2px' }}
-              title="Open New Account"
-              aria-label="Create account shortcut"
-            >
-              <PlusCircle size={15} />
-            </button>
-          )}
+      {/* ── Account Directory ── */}
+      <div className="sidebar-accounts">
+        <div className="sidebar-accounts-header">
+          <span className="sidebar-nav-label">Accounts</span>
+          <button
+            className="sidebar-accounts-add"
+            onClick={onOpenCreateAccount}
+            title="Open new account"
+          >
+            <PlusCircle size={13} />
+          </button>
         </div>
 
-        <div className="sidebar-search-box">
-          <Search size={14} />
+        <div className="sidebar-search">
+          <Search size={12} />
           <input
             type="text"
             className="sidebar-search-input"
-            placeholder="Search account ID..."
+            placeholder="Search accounts..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '140px', overflowY: 'auto' }}>
+        <div className="sidebar-account-list">
           {filteredAccounts.length === 0 ? (
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', padding: '4px' }}>
-              {accounts.length === 0 ? 'No accounts opened yet' : 'No matching accounts'}
-            </span>
+            <p className="sidebar-account-empty">
+              {accounts.length === 0 ? 'No accounts yet' : 'No matches'}
+            </p>
           ) : (
-            filteredAccounts.map((acc) => (
-              <div
+            filteredAccounts.slice(0, 6).map((acc) => (
+              <button
                 key={acc._id}
+                className="sidebar-account-row"
                 onClick={() => navigate('/accounts')}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '6px 10px',
-                  borderRadius: 'var(--radius-sm)',
-                  backgroundColor: 'var(--bg-surface-secondary)',
-                  fontSize: '0.78rem',
-                  cursor: 'pointer',
-                }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <CreditCard size={13} color="var(--text-tertiary)" />
-                  <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
-                    {formatAccountId(acc._id)}
-                  </span>
+                <div className="sidebar-account-row-left">
+                  <div className={`sidebar-account-dot ${acc.status.toLowerCase()}`} />
+                  <span className="sidebar-account-id">{formatAccountId(acc._id)}</span>
                 </div>
-                <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>
+                <span className="sidebar-account-bal">
                   {formatCurrency(balances[acc._id] || 0, false)}
                 </span>
-              </div>
+              </button>
             ))
           )}
         </div>
+      </div>
+
+      {/* ── Footer ── */}
+      <div className="sidebar-footer">
+        <NavLink
+          to="/settings"
+          className={({ isActive }) => `sidebar-footer-btn ${isActive ? 'active' : ''}`}
+        >
+          <Settings size={15} />
+          <span>Settings</span>
+        </NavLink>
+        <div className="sidebar-footer-sep" />
+        <button className="sidebar-footer-btn danger" onClick={handleLogout}>
+          <LogOut size={15} />
+          <span>Logout</span>
+        </button>
       </div>
     </aside>
   );
