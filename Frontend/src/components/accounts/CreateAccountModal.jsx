@@ -22,30 +22,30 @@ export default function CreateAccountModal({ isOpen, onClose }) {
             display: 'flex',
             alignItems: 'center',
             gap: '14px',
-            backgroundColor: 'var(--bg-surface-secondary)',
+            background: 'var(--accent-blue-bg)',
             padding: '16px',
             borderRadius: 'var(--radius-lg)',
-            border: '1px solid var(--border-light)',
+            border: '1px solid var(--accent-blue-border)',
           }}
         >
           <div
             style={{
               width: '44px',
               height: '44px',
-              borderRadius: 'var(--radius-pill)',
-              backgroundColor: '#FFFFFF',
+              borderRadius: 'var(--radius-md)',
+              background: 'linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: 'var(--accent-primary)',
-              boxShadow: 'var(--shadow-sm)',
+              color: '#FFFFFF',
+              boxShadow: '0 4px 12px rgba(99,102,241,0.35)',
             }}
           >
-            <Wallet size={22} />
+            <Wallet size={20} />
           </div>
           <div>
-            <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>Indian Rupee (INR) Account</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
+            <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>Indian Rupee (INR) Account</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
               Standard Digital Savings Ledger Account
             </div>
           </div>
@@ -61,13 +61,14 @@ export default function CreateAccountModal({ isOpen, onClose }) {
             alignItems: 'center',
             gap: '8px',
             fontSize: '0.78rem',
-            color: 'var(--text-tertiary)',
-            backgroundColor: 'var(--bg-surface-secondary)',
+            color: 'var(--text-secondary)',
+            background: 'var(--accent-green-bg)',
+            border: '1px solid var(--accent-green-border)',
             padding: '10px 12px',
             borderRadius: 'var(--radius-md)',
           }}
         >
-          <ShieldCheck size={16} color="#10B981" />
+          <ShieldCheck size={15} color="var(--accent-green-light)" />
           <span>Secured by MongoDB Double-Entry Immutable Ledger.</span>
         </div>
 
