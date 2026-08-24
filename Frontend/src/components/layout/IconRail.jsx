@@ -5,7 +5,6 @@ import {
   Wallet,
   ArrowRightLeft,
   History,
-  ShieldCheck,
   Settings,
   Landmark,
   Sparkles,
@@ -17,26 +16,28 @@ export default function IconRail() {
   const { isSystemUser } = useAuth();
 
   const navItems = [
-    { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/accounts', icon: Wallet, label: 'My Accounts' },
-    { to: '/transfer', icon: ArrowRightLeft, label: 'Transfer Funds' },
-    { to: '/activity', icon: History, label: 'Activity' },
+    { to: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/accounts',   icon: Wallet,           label: 'My Accounts' },
+    { to: '/transfer',   icon: ArrowRightLeft,   label: 'Transfer Funds' },
+    { to: '/activity',   icon: History,          label: 'Activity Log' },
   ];
 
   if (isSystemUser) {
-    navItems.push({ to: '/system-funding', icon: Sparkles, label: 'System Initial Funding' });
+    navItems.push({ to: '/system-funding', icon: Sparkles, label: 'System Funding' });
   }
 
   return (
     <aside className="rail-container" aria-label="Quick Navigation Rail">
-      {/* Upper Charcoal Panel */}
+      {/* Upper Nav Panel */}
       <div className="rail-upper">
-        <NavLink to="/dashboard" className="rail-logo-btn" title="Ledger Bank Transact">
-          <Landmark size={20} />
+        {/* Logo Mark */}
+        <NavLink to="/dashboard" className="rail-logo-btn" title="TRANSACT Banking">
+          <Landmark size={20} strokeWidth={2} />
         </NavLink>
 
         <div className="rail-divider" />
 
+        {/* Nav Items */}
         <div className="rail-nav-group">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -48,14 +49,13 @@ export default function IconRail() {
                 className={`rail-item ${isActive ? 'active' : ''}`}
                 title={item.label}
               >
-                <Icon size={20} strokeWidth={isActive ? 2.2 : 1.75} />
+                <Icon size={19} strokeWidth={isActive ? 2.2 : 1.75} />
               </NavLink>
             );
           })}
         </div>
 
-        {/* Subtle vertical text matching reference */}
-        <span className="rail-vertical-label">TRANSACT 2025 NAV</span>
+        <span className="rail-vertical-label">TRANSACT · 2025</span>
       </div>
 
       {/* Lower Settings Pod */}
@@ -65,7 +65,7 @@ export default function IconRail() {
           className={`rail-settings-pod ${location.pathname === '/settings' ? 'active' : ''}`}
           title="Settings & Profile"
         >
-          <Settings size={18} strokeWidth={1.8} />
+          <Settings size={17} strokeWidth={1.8} />
         </NavLink>
       </div>
     </aside>
