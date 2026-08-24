@@ -10,7 +10,7 @@ export default function TransferSummary({ fromAccountId, toAccountId, amount, fr
   return (
     <div className="transfer-summary-card">
       <div className="summary-heading">
-        <Lock size={16} color="var(--accent-primary)" />
+        <Lock size={16} color="var(--accent-blue-light)" />
         <span>Transfer Summary</span>
       </div>
 
@@ -29,7 +29,7 @@ export default function TransferSummary({ fromAccountId, toAccountId, amount, fr
 
         <div className="summary-row">
           <span className="summary-label">Available Sender Balance</span>
-          <span className="summary-val" style={{ color: 'var(--accent-green)' }}>
+          <span className="summary-val" style={{ color: 'var(--accent-green-light)' }}>
             {formatCurrency(fromAccountBalance)}
           </span>
         </div>
@@ -43,7 +43,7 @@ export default function TransferSummary({ fromAccountId, toAccountId, amount, fr
           <span className="summary-val">{toAccountId ? formatAccountId(toAccountId) : '—'}</span>
         </div>
 
-        <div className="summary-row" style={{ paddingTop: '8px', borderTop: '1px solid var(--border-light)' }}>
+        <div className="summary-row" style={{ paddingTop: '8px', borderTop: '1px solid var(--border-glass)' }}>
           <span className="summary-label">Est. Remaining Balance</span>
           <span className="summary-val">{formatCurrency(remainingBalance)}</span>
         </div>
