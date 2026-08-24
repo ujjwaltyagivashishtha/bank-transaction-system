@@ -45,11 +45,12 @@ export default function ProcessingModal({
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              backgroundColor: 'var(--bg-surface-secondary)',
+              background: 'var(--accent-amber-bg)',
+              border: '1px solid var(--accent-amber-border)',
               padding: '12px 16px',
               borderRadius: 'var(--radius-md)',
               fontSize: '0.8rem',
-              color: 'var(--text-tertiary)',
+              color: 'var(--text-secondary)',
             }}
           >
             <Clock size={16} color="var(--accent-amber)" />
@@ -88,13 +89,13 @@ export default function ProcessingModal({
 
           <div
             style={{
-              backgroundColor: 'var(--bg-surface-secondary)',
+              background: 'var(--bg-glass)',
               borderRadius: 'var(--radius-lg)',
               padding: '16px',
               display: 'flex',
               flexDirection: 'column',
               gap: '10px',
-              border: '1px solid var(--border-light)',
+              border: '1px solid var(--border-glass)',
             }}
           >
             <div className="summary-row">
@@ -110,7 +111,7 @@ export default function ProcessingModal({
               <span className="summary-val">{formatAccountId(data?.toAccount)}</span>
             </div>
             {data?.transactionId && (
-              <div className="summary-row" style={{ paddingTop: '8px', borderTop: '1px solid var(--border-light)' }}>
+              <div className="summary-row" style={{ paddingTop: '8px', borderTop: '1px solid var(--border-glass)' }}>
                 <span className="summary-label">Transaction ID</span>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
@@ -165,13 +166,13 @@ export default function ProcessingModal({
 
           <div
             style={{
-              backgroundColor: 'var(--bg-surface-secondary)',
+              background: 'var(--bg-glass)',
               borderRadius: 'var(--radius-lg)',
               padding: '16px',
               display: 'flex',
               flexDirection: 'column',
               gap: '10px',
-              border: '1px solid var(--border-light)',
+              border: '1px solid var(--border-glass)',
             }}
           >
             <div className="summary-row">
@@ -191,7 +192,7 @@ export default function ProcessingModal({
               <span className="summary-val">{formatAccountId(data?.toAccount)}</span>
             </div>
             {data?.transactionId && (
-              <div className="summary-row" style={{ paddingTop: '8px', borderTop: '1px solid var(--border-light)' }}>
+              <div className="summary-row" style={{ paddingTop: '8px', borderTop: '1px solid var(--border-glass)' }}>
                 <span className="summary-label">Transaction ID</span>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
