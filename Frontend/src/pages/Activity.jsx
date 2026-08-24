@@ -1,5 +1,5 @@
 import React from 'react';
-import { History, Info } from 'lucide-react';
+import { History, Info, Zap } from 'lucide-react';
 import ActivityTable from '../components/activity/ActivityTable';
 
 export default function Activity() {
@@ -14,23 +14,24 @@ export default function Activity() {
         </div>
       </header>
 
-      {/* Note about backend persistent history ready */}
+      {/* Info Banner */}
       <div
         style={{
           display: 'flex',
-          alignItems: 'center',
+          alignItems: 'flex-start',
           gap: '12px',
-          backgroundColor: 'var(--bg-surface-secondary)',
-          border: '1px solid var(--border-light)',
+          background: 'var(--accent-blue-bg)',
+          border: '1px solid var(--accent-blue-border)',
           borderRadius: 'var(--radius-md)',
           padding: '14px 18px',
-          fontSize: '0.85rem',
+          fontSize: '0.83rem',
           color: 'var(--text-secondary)',
         }}
       >
-        <Info size={18} color="var(--accent-blue)" style={{ flexShrink: 0 }} />
+        <Info size={16} color="var(--accent-blue-light)" style={{ flexShrink: 0, marginTop: '1px' }} />
         <span>
-          <strong>Session Audit Log:</strong> Displays transactions executed during your current browser session. Structured to seamlessly connect with future persistent backend ledger audit endpoints.
+          <strong style={{ color: 'var(--accent-blue-light)' }}>Session Audit Log: </strong>
+          Displays transactions executed during your current browser session. Structured to seamlessly connect with persistent backend ledger audit endpoints.
         </span>
       </div>
 
