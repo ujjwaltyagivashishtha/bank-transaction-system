@@ -1,37 +1,77 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { getTransactions, exportTransactionsCsv } from '../api/transactions.api';
+import { useAuth } from './AuthContext';
 
 const ActivityContext = createContext(null);
 
 export function ActivityProvider({ children }) {
-  // Session-scoped transaction activity logs
-  const [sessionTransactions, setSessionTransactions] = useState([]);
+  const { isAuthenticated } = useAuth();
+
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 10, totalPages: 1 });
+  const [summary, setSummary] = useState({ totalIn: 0, totalOut: 0 });
+  const [currentFilters, setCurrentFilters] = useState({});
 
   /**
-   * Record a new transaction attempt or completion in the current session
-   * @param {Object} txData
+   * Fetch persistent transactions from backend API
+   */
+  const fetchTransactions = useCallback(async (customParams = {}) => {
+    if (!isAuthenticated) return;
+    setLoading(true);
+    try {
+      const mergedParams = { page: 1, limit: 15, ...currentFilters, ...customParams };
+      const data = await getTransactions(mergedParams);
+      setTransactions(data.transactions || []);
+      setPagination(data.pagination || { total: 0, page: 1, limit: 15, totalPages: 1 });
+      setSummary(data.summary || { totalIn: 0, totalOut: 0 });
+      setCurrentFilters(mergedParams);
+    } catch (err) {
+      console.warn('Failed to load transaction history:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [isAuthenticated, currentFilters]);
+
+  // Initial load when user authenticates
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchTransactions({ page: 1 });
+    } else {
+      setTransactions([]);
+      setPagination({ total: 0, page: 1, limit: 15, totalPages: 1 });
+      setSummary({ totalIn: 0, totalOut: 0 });
+    }
+  }, [isAuthenticated]);
+
+  /**
+   * Optimistically record or prepend newly completed transaction
    */
   const logTransaction = useCallback((txData) => {
-    const newEntry = {
-      id: txData._id || txData.transactionId || `sess_${Date.now()}`,
+    const formatted = {
+      _id: txData._id || txData.id || `tx_${Date.now()}`,
       fromAccount: txData.fromAccount,
       toAccount: txData.toAccount,
       amount: Number(txData.amount) || 0,
+      direction: txData.direction || 'DEBIT',
       idempotencyKey: txData.idempotencyKey,
       status: txData.status || 'COMPLETED',
+      reference: txData.reference || String(txData.idempotencyKey),
+      description: txData.description || 'Funds Transfer',
       createdAt: txData.createdAt || new Date().toISOString(),
-      type: txData.type || 'TRANSFER',
-      message: txData.message,
     };
 
-    setSessionTransactions((prev) => [newEntry, ...prev]);
-    return newEntry;
-  }, []);
+    setTransactions((prev) => [formatted, ...prev]);
+    // Refresh backend in background to keep stats in sync
+    setTimeout(() => {
+      fetchTransactions();
+    }, 500);
 
-  /**
-   * Update an existing transaction record (e.g. from PENDING to COMPLETED or FAILED)
-   */
+    return formatted;
+  }, [fetchTransactions]);
+
   const updateTransaction = useCallback((idempotencyKey, updates) => {
-    setSessionTransactions((prev) =>
+    setTransactions((prev) =>
       prev.map((tx) => {
         if (tx.idempotencyKey === idempotencyKey) {
           return { ...tx, ...updates };
@@ -41,17 +81,25 @@ export function ActivityProvider({ children }) {
     );
   }, []);
 
-  const clearSessionActivity = useCallback(() => {
-    setSessionTransactions([]);
+  const handleExportCsv = useCallback(async () => {
+    try {
+      await exportTransactionsCsv();
+    } catch (err) {
+      console.error('Failed to export transactions CSV:', err);
+    }
   }, []);
 
   return (
     <ActivityContext.Provider
       value={{
-        sessionTransactions,
+        transactions,
+        loading,
+        pagination,
+        summary,
+        fetchTransactions,
         logTransaction,
         updateTransaction,
-        clearSessionActivity,
+        exportCsv: handleExportCsv,
       }}
     >
       {children}
