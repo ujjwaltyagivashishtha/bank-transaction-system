@@ -30,6 +30,35 @@ export async function getCurrentUser() {
 }
 
 /**
+ * Change account password
+ * @param {Object} data - { currentPassword, newPassword }
+ * @returns {Promise<{ message: string }>}
+ */
+export async function changePassword(data) {
+  const response = await apiClient.post('/api/auth/change-password', data);
+  return response.data;
+}
+
+/**
+ * Update user notification preferences
+ * @param {Object} preferences - { emailNotifications, transferAlerts, securityAlerts }
+ * @returns {Promise<{ message: string, preferences: Object }>}
+ */
+export async function updatePreferences(preferences) {
+  const response = await apiClient.patch('/api/auth/preferences', preferences);
+  return response.data;
+}
+
+/**
+ * Fetch security status, active session details, and audit history
+ * @returns {Promise<{ security: Object }>}
+ */
+export async function getSecurityStatus() {
+  const response = await apiClient.get('/api/auth/security-status');
+  return response.data;
+}
+
+/**
  * Logout the authenticated user
  * @returns {Promise<{ message: string }>}
  */
