@@ -1,69 +1,84 @@
 const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        type: 'OAuth2',
-        user: process.env.EMAIL_USER,
-        clientId: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
-        refreshToken: process.env.REFRESH_TOKEN,
-    },
-});
+let transporter = null;
 
-// Verify the connection configuration if credentials are configured
-if (process.env.EMAIL_USER && process.env.CLIENT_ID) {
-    transporter.verify((error, success) => {
-        if (error) {
-            console.warn('Email service notice: Unable to connect to OAuth email server:', error.message);
-        } else {
-            console.log('Email server is ready to send messages');
-        }
-    });
+// Initialize transporter only if valid configuration is provided
+if (process.env.NODE_ENV !== 'test' && process.env.EMAIL_USER && process.env.CLIENT_ID && process.env.CLIENT_SECRET && process.env.REFRESH_TOKEN) {
+    try {
+        transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                type: 'OAuth2',
+                user: process.env.EMAIL_USER,
+                clientId: process.env.CLIENT_ID,
+                clientSecret: process.env.CLIENT_SECRET,
+                refreshToken: process.env.REFRESH_TOKEN,
+            },
+        });
+    } catch (err) {
+        console.warn('Email service: Transporter setup skipped:', err.message);
+    }
+} else if (process.env.NODE_ENV !== 'test' && process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    try {
+        transporter = nodemailer.createTransport({
+            host: process.env.EMAIL_HOST,
+            port: parseInt(process.env.EMAIL_PORT, 10) || 587,
+            secure: process.env.EMAIL_SECURE === 'true',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+        });
+    } catch (err) {
+        console.warn('Email service: SMTP setup skipped:', err.message);
+    }
 }
 
-
-// Function to send email
 const sendEmail = async (to, subject, text, html) => {
+    if (!transporter || process.env.NODE_ENV === 'test') {
+        // In test mode or when email is unconfigured, safely simulate delivery
+        return { simulated: true, to, subject };
+    }
+
     try {
         const info = await transporter.sendMail({
-            from: `"Backend Ledger" <${process.env.EMAIL_USER}>`, // sender address
-            to, // list of receivers
-            subject, // Subject line
-            text, // plain text body
-            html, // html body
+            from: `"TRANSACT Ledger Bank" <${process.env.EMAIL_USER}>`,
+            to,
+            subject,
+            text,
+            html,
         });
-
-        console.log('Message sent: %s', info.messageId);
-        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+        return { success: true, messageId: info.messageId };
     } catch (error) {
-        console.error('Error sending email:', error);
+        // Safe logging without dumping credentials or breaking transaction flow
+        console.warn(`Email notification warning [${subject}]: ${error.message || 'Delivery failure'}`);
+        return { success: false, error: error.message };
     }
 };
-
 
 async function sendRegistrationEmail(userEmail, name) {
     const subject = 'Welcome to TRANSACT Ledger Bank!';
     const text = `Hello ${name},\n\nThank you for registering at TRANSACT Ledger Bank. Your digital banking profile has been initialized successfully!\n\nBest regards,\nThe TRANSACT Team`;
     const html = `<p>Hello ${name},</p><p>Thank you for registering at TRANSACT Ledger Bank. Your digital banking profile has been initialized successfully!</p><p>Best regards,<br>The TRANSACT Team</p>`;
 
-    await sendEmail(userEmail, subject, text, html);
+    return await sendEmail(userEmail, subject, text, html);
 }
 
-async function sendTransactionEmail(userEmail, name, amount, toAccount) {
-    const subject = 'Transaction Successful!';
-    const text = `Hello ${name},\n\nYour transfer of ₹${amount} to account ${toAccount} was executed and settled successfully on the ledger.\n\nBest regards,\nThe TRANSACT Team`;
-    const html = `<p>Hello ${name},</p><p>Your transfer of <strong>₹${amount}</strong> to account <code>${toAccount}</code> was executed and settled successfully on the ledger.</p><p>Best regards,<br>The TRANSACT Team</p>`;
+async function sendTransactionEmail(userEmail, name, amount, toAccount, reference) {
+    const subject = 'Transaction Successful — TRANSACT Bank';
+    const refStr = reference ? ` (Ref: ${reference})` : '';
+    const text = `Hello ${name},\n\nYour transfer of ₹${amount} to account ${toAccount}${refStr} was executed and settled successfully on the double-entry ledger.\n\nBest regards,\nThe TRANSACT Team`;
+    const html = `<p>Hello ${name},</p><p>Your transfer of <strong>₹${amount}</strong> to account <code>${toAccount}</code>${refStr} was executed and settled successfully on the immutable double-entry ledger.</p><p>Best regards,<br>The TRANSACT Team</p>`;
 
-    await sendEmail(userEmail, subject, text, html);
+    return await sendEmail(userEmail, subject, text, html);
 }
 
-async function sendTransactionFailureEmail(userEmail, name, amount, toAccount) {
-    const subject = 'Transaction Processing Notice';
-    const text = `Hello ${name},\n\nWe regret to inform you that your transfer attempt of ₹${amount} to account ${toAccount} could not be settled. Please check your available balance and retry.\n\nBest regards,\nThe TRANSACT Team`;
-    const html = `<p>Hello ${name},</p><p>We regret to inform you that your transfer attempt of <strong>₹${amount}</strong> to account <code>${toAccount}</code> could not be settled. Please check your available balance and retry.</p><p>Best regards,<br>The TRANSACT Team</p>`;
+async function sendTransactionFailureEmail(userEmail, name, amount, toAccount, reason) {
+    const subject = 'Transaction Notice — TRANSACT Bank';
+    const text = `Hello ${name},\n\nYour transfer attempt of ₹${amount} to account ${toAccount} could not be settled.${reason ? ' Reason: ' + reason : ''}\n\nBest regards,\nThe TRANSACT Team`;
+    const html = `<p>Hello ${name},</p><p>Your transfer attempt of <strong>₹${amount}</strong> to account <code>${toAccount}</code> could not be settled.${reason ? '<br>Reason: ' + reason : ''}</p><p>Best regards,<br>The TRANSACT Team</p>`;
 
-    await sendEmail(userEmail, subject, text, html);
+    return await sendEmail(userEmail, subject, text, html);
 }
 
 module.exports = {
