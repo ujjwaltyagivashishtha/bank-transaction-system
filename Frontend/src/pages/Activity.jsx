@@ -7,9 +7,9 @@ export default function Activity() {
     <div className="dashboard-scroll-area">
       <header className="page-header">
         <div className="page-header-text">
-          <h1 className="page-title">Transfer Activity</h1>
+          <h1 className="page-title">Ledger Transaction Activity</h1>
           <p className="page-subtitle">
-            Real-time transaction logs and transfer execution records for your active session.
+            Authenticated, persistent double-entry financial ledger records, statement downloads, and receipts.
           </p>
         </div>
       </header>
@@ -30,8 +30,8 @@ export default function Activity() {
       >
         <Info size={16} color="var(--accent-blue-light)" style={{ flexShrink: 0, marginTop: '1px' }} />
         <span>
-          <strong style={{ color: 'var(--accent-blue-light)' }}>Session Audit Log: </strong>
-          Displays transactions executed during your current browser session. Structured to seamlessly connect with persistent backend ledger audit endpoints.
+          <strong style={{ color: 'var(--accent-blue-light)' }}>Persistent Audit Trail: </strong>
+          All transactions are settled atomically on the immutable double-entry ledger. View printable receipts, generate statements, or download sanitized CSV records.
         </span>
       </div>
 
