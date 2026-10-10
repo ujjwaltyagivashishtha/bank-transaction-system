@@ -8,6 +8,9 @@ import {
   Settings,
   Landmark,
   Sparkles,
+  TrendingUp,
+  Shield,
+  Database,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -20,10 +23,13 @@ export default function IconRail() {
     { to: '/accounts',   icon: Wallet,           label: 'My Accounts' },
     { to: '/transfer',   icon: ArrowRightLeft,   label: 'Transfer Funds' },
     { to: '/activity',   icon: History,          label: 'Activity Log' },
+    { to: '/insights',   icon: TrendingUp,       label: 'Insights' },
+    { to: '/security',   icon: Shield,           label: 'Security Center' },
   ];
 
   if (isSystemUser) {
     navItems.push({ to: '/system-funding', icon: Sparkles, label: 'System Funding' });
+    navItems.push({ to: '/admin-audit', icon: Database, label: 'Ledger Audit' });
   }
 
   return (
