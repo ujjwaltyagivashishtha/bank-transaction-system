@@ -3,6 +3,7 @@ import { useOutletContext, useNavigate } from 'react-router-dom';
 import { PlusCircle, ArrowRight, CreditCard, TrendingUp, ShieldCheck, Activity } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useAccounts } from '../context/AccountContext';
+import { useActivity } from '../context/ActivityContext';
 import MainBalanceCard from '../components/dashboard/MainBalanceCard';
 import QuickActions from '../components/dashboard/QuickActions';
 import AccountCard from '../components/accounts/AccountCard';
@@ -54,6 +55,7 @@ function StatCard({ icon: Icon, label, value, color, bg, glow }) {
 export default function Dashboard() {
   const { user } = useAuth();
   const { accounts, balances, loading, totalBalance, statusCounts } = useAccounts();
+  const { summary } = useActivity();
   const { openCreateAccountModal } = useOutletContext();
   const navigate = useNavigate();
 
@@ -112,17 +114,17 @@ export default function Dashboard() {
           glow="rgba(99,102,241,0.3)"
         />
         <StatCard
-          icon={ShieldCheck}
-          label="Active"
-          value={statusCounts.active.toString()}
+          icon={TrendingUp}
+          label="Total Money In"
+          value={formatCurrency(summary.totalIn || 0, false)}
           color="#34D399"
           bg="rgba(52,211,153,0.15)"
           glow="rgba(52,211,153,0.3)"
         />
         <StatCard
           icon={Activity}
-          label="Frozen / Closed"
-          value={`${statusCounts.frozen + statusCounts.closed}`}
+          label="Total Money Out"
+          value={formatCurrency(summary.totalOut || 0, false)}
           color="#F59E0B"
           bg="rgba(245,158,11,0.15)"
           glow="rgba(245,158,11,0.3)"
