@@ -131,27 +131,27 @@ sequenceDiagram
     participant Outbox as Email Notification Outbox
 
     User->>Router: POST /api/transactions (Idempotency-Key, fromAccount, toAccount, amount)
-    Router->>Auth: Verify JWT & Validate fromAccount Ownership (user._id == fromAccount.user)
-    Auth-->>Router: Authorized
-    Router->>Money: Convert amount to integer paise & validate decimal precision
+    Router->>Auth: Verify JWT and Validate fromAccount Ownership
+    Auth-->>Router: Authorized (Sender owns account)
+    Router->>Money: Convert amount to integer paise and validate precision
     Money-->>Router: Validated Integer Paise Amount
 
-    Router->>DB: Query Idempotency Key & User ID
-    alt Duplicate Request (Same User & Parameters)
+    Router->>DB: Query Idempotency Key and User ID
+    alt Duplicate Request (Same User and Parameters)
         DB-->>User: Return 200 OK with cached transaction payload
-    else Parameter Hijack / Key Collision
+    else Parameter Hijack or Key Collision
         DB-->>User: Return 409 Conflict (Mismatched transaction parameters)
     end
 
     Router->>DB: Start Multi-Document MongoDB Transaction Session
     DB->>DB: Acquire Document Write Lock on Sender Account (__v increment)
-    DB->>Ledger: Derive Sender Balance under lock (Sum Credits - Sum Debits)
+    DB->>Ledger: Derive Sender Balance under lock (Sum Credits minus Sum Debits)
 
-    alt Balance < Requested Amount
-        DB-->>Router: Insufficient Balance
+    alt Insufficient Balance (Balance is less than Requested Amount)
+        DB-->>Router: Insufficient Balance Error
         Router->>DB: Abort MongoDB Transaction
         Router-->>User: Return 400 Bad Request (Insufficient funds)
-    else Balance >= Requested Amount
+    else Sufficient Balance (Balance is greater than or equal to Requested Amount)
         DB->>DB: Insert Transaction Record (PENDING)
         DB->>Ledger: Insert DEBIT Entry (Sender Account)
         DB->>Ledger: Insert CREDIT Entry (Recipient Account)
@@ -159,7 +159,7 @@ sequenceDiagram
         DB->>DB: Commit MongoDB Transaction
         DB-->>Router: Commit Success
         Router->>Outbox: Dispatch non-blocking confirmation email
-        Router-->>User: Return 201 Created (Transaction Reference & Updated Balances)
+        Router-->>User: Return 201 Created (Transaction Reference and Updated Balances)
     end
 ```
 
