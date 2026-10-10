@@ -104,8 +104,8 @@ export default function SystemFunding() {
               >
                 <option value="">-- Choose an Account --</option>
                 {accounts.map((acc) => (
-                  <option key={acc._id} value={acc._id}>
-                    {formatAccountId(acc._id)} · {acc.status}
+                  <option key={acc._id} value={acc.accountNumber || acc._id}>
+                    {acc.accountNumber ? `A/C ${acc.accountNumber}` : formatAccountId(acc._id)} · {acc.status}
                   </option>
                 ))}
               </select>
