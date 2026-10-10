@@ -18,6 +18,9 @@ import Transfer from './pages/Transfer';
 import Activity from './pages/Activity';
 import SystemFunding from './pages/SystemFunding';
 import Settings from './pages/Settings';
+import Insights from './pages/Insights';
+import SecurityCenter from './pages/SecurityCenter';
+import AdminAudit from './pages/AdminAudit';
 
 import Spinner from './components/common/Spinner';
 
@@ -72,6 +75,9 @@ export default function App() {
                     <Route path="/accounts" element={<Accounts />} />
                     <Route path="/transfer" element={<Transfer />} />
                     <Route path="/activity" element={<Activity />} />
+                    <Route path="/insights" element={<Insights />} />
+                    <Route path="/security" element={<SecurityCenter />} />
+                    <Route path="/admin-audit" element={<AdminAudit />} />
                     <Route path="/system-funding" element={<SystemFunding />} />
                     <Route path="/settings" element={<Settings />} />
                   </Route>
