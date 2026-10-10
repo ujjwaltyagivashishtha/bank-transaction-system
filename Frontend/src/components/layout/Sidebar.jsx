@@ -24,10 +24,12 @@ import { formatAccountId } from '../../utils/formatAccountId';
 import { formatCurrency } from '../../utils/formatCurrency';
 
 const NAV_ITEMS = [
-  { to: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard',       desc: 'Overview & metrics' },
-  { to: '/accounts',   icon: Wallet,           label: 'My Accounts',    desc: 'Manage accounts'    },
-  { to: '/transfer',   icon: ArrowRightLeft,   label: 'Transfer Funds', desc: 'Send money'         },
-  { to: '/activity',   icon: History,          label: 'Activity Log',   desc: 'Transaction history'},
+  { to: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard',          desc: 'Overview & metrics' },
+  { to: '/accounts',   icon: Wallet,           label: 'My Accounts',       desc: 'Manage accounts'    },
+  { to: '/transfer',   icon: ArrowRightLeft,   label: 'Transfer Funds',    desc: 'Send money'         },
+  { to: '/activity',   icon: History,          label: 'Activity Log',      desc: 'Transaction history'},
+  { to: '/insights',   icon: TrendingUp,       label: 'Insights',          desc: 'Financial trends'   },
+  { to: '/security',   icon: Shield,           label: 'Security Center',   desc: 'Account protection' },
 ];
 
 export default function Sidebar({ onOpenCreateAccount }) {
@@ -52,7 +54,10 @@ export default function Sidebar({ onOpenCreateAccount }) {
 
   const allNavItems = [
     ...NAV_ITEMS,
-    ...(isSystemUser ? [{ to: '/system-funding', icon: Sparkles, label: 'System Funding', desc: 'Inject liquidity', highlight: true }] : []),
+    ...(isSystemUser ? [
+      { to: '/system-funding', icon: Sparkles, label: 'System Funding', desc: 'Inject liquidity', highlight: true },
+      { to: '/admin-audit', icon: Landmark, label: 'Ledger Audit', desc: 'Audit & reconciliation', highlight: true },
+    ] : []),
   ];
 
   return (
