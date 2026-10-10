@@ -1,4 +1,4 @@
-# 🏦 TRANSACT 2.0 — Banking Transaction Management System
+# 🏦 TRANSACT — Banking Transaction Management System
 
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)](https://nodejs.org/)
 [![Express](https://img.shields.io/badge/Express-5.x-lightgrey.svg)](https://expressjs.com/)
@@ -8,7 +8,7 @@
 [![Tests](https://img.shields.io/badge/Tests-76%20Passed%20(0%20Failed)-brightgreen.svg)](Backend/test_suite.js)
 [![License](https://img.shields.io/badge/License-ISC-blue.svg)](Backend/package.json)
 
-**TRANSACT 2.0** is a full-stack fintech banking platform and ledger management system built with an **immutable double-entry accounting ledger**, **integer sub-paise monetary precision**, **atomic multi-document MongoDB transactions**, **cryptographic idempotency protection**, **formula-injection-safe CSV exports**, **automated ledger reconciliation**, and a **custom dark glassmorphism Web Desktop UI**.
+**TRANSACT** is a full-stack fintech banking platform and ledger management system built with an **immutable double-entry accounting ledger**, **integer sub-paise monetary precision**, **atomic multi-document MongoDB transactions**, **cryptographic idempotency protection**, **formula-injection-safe CSV exports**, **automated ledger reconciliation**, and a **custom dark glassmorphism Web Desktop UI**.
 
 ---
 
