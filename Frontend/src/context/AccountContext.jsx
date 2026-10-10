@@ -21,23 +21,40 @@ export function AccountProvider({ children }) {
       return;
     }
 
-    const balancePromises = accountList.map(async (acc) => {
-      try {
-        const res = await getAccountBalance(acc._id);
-        return { accountId: acc._id, balance: res.balance || 0 };
-      } catch (err) {
-        console.warn(`Failed to fetch balance for account ${acc._id}:`, err);
-        return { accountId: acc._id, balance: 0 };
+    // First initialize from any existing balance properties on the accounts
+    const initialMap = {};
+    const missing = [];
+    accountList.forEach((acc) => {
+      if (typeof acc.balance === 'number') {
+        initialMap[acc._id] = acc.balance;
+      } else {
+        missing.push(acc);
       }
     });
 
-    const results = await Promise.all(balancePromises);
-    const balanceMap = {};
-    results.forEach(({ accountId, balance }) => {
-      balanceMap[accountId] = balance;
-    });
+    if (Object.keys(initialMap).length > 0) {
+      setBalances((prev) => ({ ...prev, ...initialMap }));
+    }
 
-    setBalances(balanceMap);
+    // Only make network requests for accounts missing a balance
+    if (missing.length > 0) {
+      const balancePromises = missing.map(async (acc) => {
+        try {
+          const res = await getAccountBalance(acc._id);
+          return { accountId: acc._id, balance: res.balance || 0 };
+        } catch (err) {
+          console.warn(`Failed to fetch balance for account ${acc._id}:`, err);
+          return { accountId: acc._id, balance: 0 };
+        }
+      });
+
+      const results = await Promise.all(balancePromises);
+      const balanceMap = { ...initialMap };
+      results.forEach(({ accountId, balance }) => {
+        balanceMap[accountId] = balance;
+      });
+      setBalances((prev) => ({ ...prev, ...balanceMap }));
+    }
   }, []);
 
   // Fetch all accounts and their respective balances
@@ -48,7 +65,12 @@ export function AccountProvider({ children }) {
       const data = await getUserAccounts();
       const userAccounts = data.accounts || [];
       setAccounts(userAccounts);
-      await fetchBalancesForAccounts(userAccounts);
+      // Immediately map balances from enriched accounts returned by backend
+      const balanceMap = {};
+      userAccounts.forEach((acc) => {
+        balanceMap[acc._id] = typeof acc.balance === 'number' ? acc.balance : 0;
+      });
+      setBalances(balanceMap);
     } catch (err) {
       console.error('Error fetching accounts:', err);
       // Only show error toast if not an unmounted or cancelled request
