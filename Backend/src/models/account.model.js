@@ -1,11 +1,24 @@
-const mongoose = require("mongoose")
-const ledgerModel = require("./ledger.model")
+const mongoose = require("mongoose");
+const crypto = require("crypto");
+const ledgerModel = require("./ledger.model");
+
+function generateSecureAccountNumber() {
+    // Generate 12-digit standard bank account number starting with 10
+    const randomDigits = crypto.randomInt(1000000000, 9999999999).toString();
+    return `10${randomDigits}`;
+}
 
 const accountSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
         required: [ true, "Account must be associated with a user" ],
+        index: true
+    },
+    accountNumber: {
+        type: String,
+        unique: true,
+        sparse: true,
         index: true
     },
     status: {
@@ -23,30 +36,37 @@ const accountSchema = new mongoose.Schema({
     }
 }, {
     timestamps: true
-})
+});
 
-accountSchema.index({ user: 1, status: 1 })
+accountSchema.index({ user: 1, status: 1 });
 
-accountSchema.methods.getBalance = async function (session = null) {
+// Ensure account has unique 12-digit public account number
+accountSchema.pre("save", function () {
+    if (!this.accountNumber) {
+        this.accountNumber = generateSecureAccountNumber();
+    }
+});
+
+accountSchema.methods.getBalanceInPaise = async function (session = null) {
     const aggregateQuery = ledgerModel.aggregate([
         { $match: { account: this._id } },
         {
             $group: {
                 _id: null,
-                totalDebit: {
+                totalDebitPaise: {
                     $sum: {
                         $cond: [
                             { $eq: [ "$type", "DEBIT" ] },
-                            "$amount",
+                            { $ifNull: [ "$amountInPaise", { $round: [ { $multiply: [ "$amount", 100 ] }, 0 ] } ] },
                             0
                         ]
                     }
                 },
-                totalCredit: {
+                totalCreditPaise: {
                     $sum: {
                         $cond: [
                             { $eq: [ "$type", "CREDIT" ] },
-                            "$amount",
+                            { $ifNull: [ "$amountInPaise", { $round: [ { $multiply: [ "$amount", 100 ] }, 0 ] } ] },
                             0
                         ]
                     }
@@ -56,7 +76,7 @@ accountSchema.methods.getBalance = async function (session = null) {
         {
             $project: {
                 _id: 0,
-                balance: { $subtract: [ "$totalCredit", "$totalDebit" ] }
+                balancePaise: { $subtract: [ "$totalCreditPaise", "$totalDebitPaise" ] }
             }
         }
     ]);
@@ -71,13 +91,19 @@ accountSchema.methods.getBalance = async function (session = null) {
         return 0;
     }
 
-    // Round to 2 decimal places to prevent standard JS floating point representation artifacts
-    return Math.round(balanceData[0].balance * 100) / 100;
-}
+    return Math.round(balanceData[0].balancePaise);
+};
 
+accountSchema.methods.getBalance = async function (session = null) {
+    const balancePaise = await this.getBalanceInPaise(session);
+    return Math.round(balancePaise) / 100;
+};
 
-const accountModel = mongoose.model("account", accountSchema)
+accountSchema.methods.getMaskedAccountNumber = function () {
+    const num = this.accountNumber || String(this._id);
+    return `•••• ${num.slice(-4)}`;
+};
 
+const accountModel = mongoose.model("account", accountSchema);
 
-
-module.exports = accountModel
+module.exports = accountModel;
