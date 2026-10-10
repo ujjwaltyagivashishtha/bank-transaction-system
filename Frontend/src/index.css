@@ -1591,6 +1591,148 @@ button {
   border-top: 1px solid var(--border-glass);
 }
 
+/* ── Transfer Recipient Selection & Beneficiary Management ── */
+.recipient-mode-tabs {
+  display: flex;
+  gap: 6px;
+  background: var(--bg-layer-2);
+  padding: 4px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-glass);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.recipient-mode-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--ease-smooth);
+}
+
+.recipient-mode-tab:hover {
+  color: var(--text-primary);
+  background: var(--bg-glass);
+}
+
+.recipient-mode-tab.active {
+  background: var(--accent-blue);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px var(--accent-blue-glow);
+}
+
+.recipient-badge-pill {
+  font-size: 0.68rem;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.15);
+  font-weight: 700;
+}
+
+.recipient-search-results {
+  margin-top: 8px;
+  background: var(--bg-layer-2);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.recipient-search-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-glass);
+  cursor: pointer;
+  transition: background var(--ease-fast);
+}
+
+.recipient-search-item:last-child {
+  border-bottom: none;
+}
+
+.recipient-search-item:hover {
+  background: var(--bg-glass-hover);
+}
+
+.recipient-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.recipient-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.recipient-chip-card {
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all var(--ease-smooth);
+  position: relative;
+  text-align: left;
+}
+
+.recipient-chip-card:hover {
+  background: var(--bg-glass-hover);
+  border-color: var(--accent-blue-border);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.recipient-chip-card.selected {
+  border-color: var(--accent-green);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.verified-recipient-card {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fadeSlideUp 0.3s var(--ease-smooth);
+}
+
+.save-recipient-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(16, 185, 129, 0.25);
+}
+
 /* ==========================================================================
    ACTIVITY TABLE
    ========================================================================== */
