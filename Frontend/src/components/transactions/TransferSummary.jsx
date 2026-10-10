@@ -1,9 +1,9 @@
 import React from 'react';
-import { ShieldCheck, ArrowDown, Lock } from 'lucide-react';
+import { ShieldCheck, ArrowDown, Lock, CheckCircle2 } from 'lucide-react';
 import { formatAccountId } from '../../utils/formatAccountId';
 import { formatCurrency } from '../../utils/formatCurrency';
 
-export default function TransferSummary({ fromAccountId, toAccountId, amount, fromAccountBalance = 0 }) {
+export default function TransferSummary({ fromAccountId, toAccountId, recipientName, amount, fromAccountBalance = 0 }) {
   const numericAmount = Number(amount) || 0;
   const remainingBalance = Math.max(0, fromAccountBalance - numericAmount);
 
@@ -40,7 +40,9 @@ export default function TransferSummary({ fromAccountId, toAccountId, amount, fr
 
         <div className="summary-row">
           <span className="summary-label">To Account</span>
-          <span className="summary-val">{toAccountId ? formatAccountId(toAccountId) : '—'}</span>
+          <span className="summary-val">
+            {recipientName ? `${recipientName} (${formatAccountId(toAccountId)})` : (toAccountId ? formatAccountId(toAccountId) : '—')}
+          </span>
         </div>
 
         <div className="summary-row" style={{ paddingTop: '8px', borderTop: '1px solid var(--border-glass)' }}>
