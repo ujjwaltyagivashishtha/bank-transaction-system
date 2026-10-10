@@ -21,7 +21,12 @@ export default function Accounts() {
     if (filter === 'ACTIVE' && acc.status !== 'ACTIVE') return false;
     if (filter === 'FROZEN' && acc.status !== 'FROZEN') return false;
     if (filter === 'CLOSED' && acc.status !== 'CLOSED') return false;
-    if (search.trim()) return acc._id.toLowerCase().includes(search.toLowerCase());
+    if (search.trim()) {
+      const s = search.toLowerCase();
+      const matchId = acc._id.toLowerCase().includes(s);
+      const matchNum = acc.accountNumber ? acc.accountNumber.toLowerCase().includes(s) : false;
+      return matchId || matchNum;
+    }
     return true;
   });
 
