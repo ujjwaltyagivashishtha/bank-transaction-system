@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-
 const ledgerSchema = new mongoose.Schema({
     account: {
         type: mongoose.Schema.Types.ObjectId,
@@ -21,6 +20,21 @@ const ledgerSchema = new mongoose.Schema({
         },
         immutable: true
     },
+    amountInPaise: {
+        type: Number,
+        immutable: true,
+        validate: {
+            validator: function(val) {
+                return val === undefined || (Number.isInteger(val) && val > 0);
+            },
+            message: "amountInPaise must be a positive integer"
+        }
+    },
+    currency: {
+        type: String,
+        default: "INR",
+        immutable: true
+    },
     transaction: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "transaction",
@@ -37,8 +51,18 @@ const ledgerSchema = new mongoose.Schema({
         required: [ true, "Ledger type is required" ],
         immutable: true
     }
-})
+}, {
+    timestamps: true
+});
 
+ledgerSchema.index({ account: 1, createdAt: -1 });
+
+// Ensure amountInPaise is synchronized before validation
+ledgerSchema.pre('validate', function () {
+    if (this.amount && !this.amountInPaise) {
+        this.amountInPaise = Math.round(this.amount * 100);
+    }
+});
 
 function preventLedgerModification() {
     throw new Error("Ledger entries are immutable and cannot be modified or deleted");
@@ -52,7 +76,6 @@ ledgerSchema.pre('deleteMany', preventLedgerModification);
 ledgerSchema.pre('updateMany', preventLedgerModification);
 ledgerSchema.pre("findOneAndDelete", preventLedgerModification);
 ledgerSchema.pre("findOneAndReplace", preventLedgerModification);
-
 
 const ledgerModel = mongoose.model('ledger', ledgerSchema);
 
